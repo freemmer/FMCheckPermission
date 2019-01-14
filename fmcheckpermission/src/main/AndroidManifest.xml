@@ -6,8 +6,13 @@
             android:theme="@style/AppTheme">
 
         <activity
-                android:name=".FMCheckPermissionActivity"
-                android:theme="@style/Transparent"
-                android:configChanges="keyboardHidden|orientation|screenSize"/>
+            android:name=".FMCheckPermissionActivity"
+            android:theme="@style/Transparent"
+            android:configChanges="keyboardHidden|screenSize"/>
+        <activity
+            android:name=".FMCheckPermissionSystemAlertActivity"
+            android:theme="@style/Transparent"
+            android:configChanges="keyboardHidden|screenSize"/>
+
     </application>
 </manifest>
