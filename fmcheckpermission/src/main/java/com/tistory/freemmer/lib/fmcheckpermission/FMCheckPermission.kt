@@ -97,7 +97,7 @@ class FMCheckPermissionActivity
     }
 
 
-    private fun execute() {
+    fun execute() {
         if (serializable.permissions.isNotEmpty()) {
             checkPermission(serializable.permissions)
         } else {
@@ -146,7 +146,11 @@ class FMCheckPermissionActivity
                 }
             } else if (deniedPermissionsList.isNotEmpty()) {
                 Log.d(FMCheckPermission::class.java.simpleName, "Permission Rejected")
-                serializable.pDeniedRequestPermission?.invoke(this, deniedPermissionsList)
+                if (serializable.pDeniedRequestPermission != null) {
+                    serializable.pDeniedRequestPermission!!.invoke(this, deniedPermissionsList)
+                } else {
+                    finish()
+                }
             } else {
                 Log.d(FMCheckPermission::class.java.simpleName, "Permission Accepted")
                 serializable.pGrantedRequestPermission?.invoke()
@@ -156,7 +160,7 @@ class FMCheckPermissionActivity
     }
 
 
-    private fun defaultRequestPermissionRationale() {
+    fun defaultRequestPermissionRationale() {
         val packageName = applicationContext.packageName
         try {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)

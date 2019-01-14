@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">FMCheckPermissionDemo</string>
     <string name="action_settings">Settings</string>
+
+    <string name="dialog_btn_ok">확인</string>
+    <string name="dialog_btn_cancel">취소</string>
 </resources>
