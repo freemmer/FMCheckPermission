@@ -1,18 +1,2 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.tistory.freemmer.lib.fmcheckpermission">
-    <application
-            android:allowBackup="true"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme">
-
-        <activity
-            android:name=".FMCheckPermissionActivity"
-            android:theme="@style/Transparent"
-            android:configChanges="keyboardHidden|screenSize"/>
-        <activity
-            android:name=".FMCheckPermissionSystemAlertActivity"
-            android:theme="@style/Transparent"
-            android:configChanges="keyboardHidden|screenSize"/>
-
-    </application>
-</manifest>
+          package="com.tistory.freemmer.lib.fmcheckpermission"/>

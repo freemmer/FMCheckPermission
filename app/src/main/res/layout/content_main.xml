@@ -25,16 +25,16 @@
 
         <Button
             android:id="@+id/btnCheckPermission"
-            android:layout_width="250dp"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:text="Check Permission\r\n-READ_PHONE_STATE\r\n-ACCESS_NETWORK_STATE\r\n-..."
+            android:text="Check Permissions\r\n(ignore SYSTEM_ALERT_WINDOW)"
             android:textAlignment="textStart" />
 
         <Button
             android:id="@+id/btnCheckPermissionSystemAlertWindow"
-            android:layout_width="250dp"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:text="Check Permission\r\n-SYSTEM_ALERT_WINDOW"
+            android:text="Check Permissions\r\n(with SYSTEM_ALERT_WINDOW)"
             android:textAlignment="textStart" />
     </LinearLayout>
 
