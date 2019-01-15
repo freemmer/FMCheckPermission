@@ -104,7 +104,7 @@ class MainActivity : FMCheckPermissionActivity() {
 }
 ```
 
-## License
+License
 ----
 This software is licensed under the [Apache 2 license](LICENSE), quoted below.
 
