@@ -12,9 +12,9 @@ For check permission on Android (Kotlin)
 
 Project build.gradle
 ```Groovy
-buildscript {
+allprojects {
     repositories {
-        maven { url "https://jitpack.io" }
+        maven { url 'https://jitpack.io' }
     }
 }
 ```
