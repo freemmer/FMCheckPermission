@@ -135,9 +135,6 @@ class FMCheckPermission (
 }
 
 interface FMICheckPermission {
-    fun checkPermission(permissions: Array<String>, packageName: String? = null)
-    fun moveSetting(packageName: String)
-
     fun onRequestPermissionRationale(permissions: List<String>)
     fun onDeniedRequestPermission(permissions: List<String>)
     fun onGrantedRequestPermission()
@@ -153,12 +150,12 @@ abstract class FMCheckPermissionActivity: Activity(), FMICheckPermission {
             checker = FMCheckPermission(this, this)
         }
     }
-    override fun checkPermission(permissions: Array<String>, packageName: String?) {
+    fun checkPermission(permissions: Array<String>, packageName: String?) {
         checkLateInit()
         checker.execute(permissions, packageName)
     }
 
-    override fun moveSetting(packageName: String) {
+    fun moveSetting(packageName: String) {
         checkLateInit()
         checker.moveSetting(packageName)
     }
@@ -179,12 +176,12 @@ abstract class FMCheckPermissionAppCompatActivity: AppCompatActivity(), FMICheck
             checker = FMCheckPermission(this, this)
         }
     }
-    override fun checkPermission(permissions: Array<String>, packageName: String?) {
+    fun checkPermission(permissions: Array<String>, packageName: String?) {
         checkLateInit()
         checker.execute(permissions, packageName)
     }
 
-    override fun moveSetting(packageName: String) {
+    fun moveSetting(packageName: String) {
         checkLateInit()
         checker.moveSetting(packageName)
     }
@@ -205,12 +202,12 @@ abstract class FMCheckPermissionAppFragmentActivity: FragmentActivity(), FMIChec
             checker = FMCheckPermission(this, this)
         }
     }
-    override fun checkPermission(permissions: Array<String>, packageName: String?) {
+    fun checkPermission(permissions: Array<String>, packageName: String?) {
         checkLateInit()
         checker.execute(permissions, packageName)
     }
 
-    override fun moveSetting(packageName: String) {
+    fun moveSetting(packageName: String) {
         checkLateInit()
         checker.moveSetting(packageName)
     }

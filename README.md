@@ -22,7 +22,7 @@ allprojects {
 App build.gradle
 ```Groovy
 dependencies {
-    implementation 'com.github.freemmer:FMCheckPermission:1.1.0'
+    implementation 'com.github.freemmer:FMCheckPermission:1.2.0'
 }
 ```
 
@@ -118,12 +118,12 @@ abstract class FMCheckPermissionActivity: Activity(), FMICheckPermission {
             checker = FMCheckPermission(this, this)
         }
     }
-    override fun checkPermission(permissions: Array<String>, packageName: String?) {
+    fun checkPermission(permissions: Array<String>, packageName: String?) {
         checkLateInit()
         checker.execute(permissions, packageName)
     }
 
-    override fun moveSetting(packageName: String) {
+    fun moveSetting(packageName: String) {
         checkLateInit()
         checker.moveSetting(packageName)
     }
