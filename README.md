@@ -22,14 +22,14 @@ allprojects {
 App build.gradle
 ```Groovy
 dependencies {
-    implementation 'com.github.freemmer:FMCheckPermission:1.0.0'
+    implementation 'com.github.freemmer:FMCheckPermission:1.1.0'
 }
 ```
 
 
-## How to Use
+## How to use
 
-```Java
+```Kotlin
 class MainActivity : FMCheckPermissionActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,6 +101,40 @@ class MainActivity : FMCheckPermissionActivity() {
             .show()
     }
 
+}
+```
+## Activity Type
+FMCheckPermissionActivity            : extends Activity
+FMCheckPermissionAppCompatActivity   : extends AppCompatActivity
+FMCheckPermissionAppFragmentActivity : extends FragmentActivity
+
+## Another how to use
+FMICheckPermission is inherited and implemented as below.
+```kotlin
+abstract class FMCheckPermissionActivity: Activity(), FMICheckPermission {
+    private lateinit var checker: FMCheckPermission
+    private fun checkLateInit() {
+        if (!this::checker.isInitialized) {
+            checker = FMCheckPermission(this, this)
+        }
+    }
+    override fun checkPermission(permissions: Array<String>, packageName: String?) {
+        checkLateInit()
+        checker.execute(permissions, packageName)
+    }
+
+    override fun moveSetting(packageName: String) {
+        checkLateInit()
+        checker.moveSetting(packageName)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        checker.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        checker.onActivityResult(requestCode, resultCode, data)
+    }
 }
 ```
 

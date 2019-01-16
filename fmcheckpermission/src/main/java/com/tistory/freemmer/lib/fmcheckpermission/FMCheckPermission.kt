@@ -147,12 +147,19 @@ interface FMICheckPermission {
 
 
 abstract class FMCheckPermissionActivity: Activity(), FMICheckPermission {
-    private var checker = FMCheckPermission(this, this)
+    private lateinit var checker: FMCheckPermission
+    private fun checkLateInit() {
+        if (!this::checker.isInitialized) {
+            checker = FMCheckPermission(this, this)
+        }
+    }
     override fun checkPermission(permissions: Array<String>, packageName: String?) {
+        checkLateInit()
         checker.execute(permissions, packageName)
     }
 
     override fun moveSetting(packageName: String) {
+        checkLateInit()
         checker.moveSetting(packageName)
     }
 
@@ -166,12 +173,19 @@ abstract class FMCheckPermissionActivity: Activity(), FMICheckPermission {
 }
 
 abstract class FMCheckPermissionAppCompatActivity: AppCompatActivity(), FMICheckPermission {
-    private var checker = FMCheckPermission(this, this)
+    private lateinit var checker: FMCheckPermission
+    private fun checkLateInit() {
+        if (!this::checker.isInitialized) {
+            checker = FMCheckPermission(this, this)
+        }
+    }
     override fun checkPermission(permissions: Array<String>, packageName: String?) {
+        checkLateInit()
         checker.execute(permissions, packageName)
     }
 
     override fun moveSetting(packageName: String) {
+        checkLateInit()
         checker.moveSetting(packageName)
     }
 
@@ -185,12 +199,19 @@ abstract class FMCheckPermissionAppCompatActivity: AppCompatActivity(), FMICheck
 }
 
 abstract class FMCheckPermissionAppFragmentActivity: FragmentActivity(), FMICheckPermission {
-    private var checker = FMCheckPermission(this, this)
+    private lateinit var checker: FMCheckPermission
+    private fun checkLateInit() {
+        if (!this::checker.isInitialized) {
+            checker = FMCheckPermission(this, this)
+        }
+    }
     override fun checkPermission(permissions: Array<String>, packageName: String?) {
+        checkLateInit()
         checker.execute(permissions, packageName)
     }
 
     override fun moveSetting(packageName: String) {
+        checkLateInit()
         checker.moveSetting(packageName)
     }
 
