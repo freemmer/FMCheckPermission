@@ -104,9 +104,9 @@ class MainActivity : FMCheckPermissionActivity() {
 }
 ```
 ## Activity Type
-FMCheckPermissionActivity            : extends Activity
-FMCheckPermissionAppCompatActivity   : extends AppCompatActivity
-FMCheckPermissionAppFragmentActivity : extends FragmentActivity
++ FMCheckPermissionActivity            : extends Activity
++ FMCheckPermissionAppCompatActivity   : extends AppCompatActivity
++ FMCheckPermissionAppFragmentActivity : extends FragmentActivity
 
 ## Another how to use
 FMICheckPermission is inherited and implemented as below.
