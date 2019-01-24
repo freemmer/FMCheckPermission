@@ -150,7 +150,7 @@ abstract class FMCheckPermissionActivity: Activity(), FMICheckPermission {
             checker = FMCheckPermission(this, this)
         }
     }
-    fun checkPermission(permissions: Array<String>, packageName: String?) {
+    fun checkPermission(permissions: Array<String>, packageName: String? = null) {
         checkLateInit()
         checker.execute(permissions, packageName)
     }
@@ -176,7 +176,7 @@ abstract class FMCheckPermissionAppCompatActivity: AppCompatActivity(), FMICheck
             checker = FMCheckPermission(this, this)
         }
     }
-    fun checkPermission(permissions: Array<String>, packageName: String?) {
+    fun checkPermission(permissions: Array<String>, packageName: String? = null) {
         checkLateInit()
         checker.execute(permissions, packageName)
     }
@@ -202,7 +202,7 @@ abstract class FMCheckPermissionAppFragmentActivity: FragmentActivity(), FMIChec
             checker = FMCheckPermission(this, this)
         }
     }
-    fun checkPermission(permissions: Array<String>, packageName: String?) {
+    fun checkPermission(permissions: Array<String>, packageName: String? = null) {
         checkLateInit()
         checker.execute(permissions, packageName)
     }
