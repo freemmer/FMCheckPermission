@@ -1,6 +1,8 @@
+![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
+[![](https://jitpack.io/v/freemmer/FMCheckPermission.svg)](https://jitpack.io/#freemmer/FMCheckPermission)
+
 # FMCheckPermission
 For check permission on Android (Kotlin)
-
 
 
 ## Demo ScreenShot
@@ -22,7 +24,7 @@ allprojects {
 App build.gradle
 ```Groovy
 dependencies {
-    implementation 'com.github.freemmer:FMCheckPermission:1.2.0'
+    implementation 'com.github.freemmer:FMCheckPermission:1.2.1'
 }
 ```
 
