@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import java.lang.ref.WeakReference
 import kotlin.collections.ArrayList
 
 /**
@@ -19,68 +20,78 @@ import kotlin.collections.ArrayList
  * History
  *    - 11/01/2019 Create file
  */
-
-class FMCheckPermission (
-    private val activity: Activity,
-    private val inter: FMICheckPermission
+class FMCheckPermission private constructor(
+    private val activity: Activity
 ) {
+
+    companion object {
+        private var weakReference: WeakReference<FMCheckPermission>? = null
+
+        fun instance(activity: Activity): FMCheckPermission {
+            if (weakReference?.get() == null) {
+                weakReference = WeakReference(FMCheckPermission(activity))
+            }
+            return weakReference?.get()!!
+        }
+    }
+
     private val REQUEST_PERMISSIONS_CHECK   = 3000
     private val OVERLAY_PERMISSION_REQ_CODE = 3001
     private val REQUEST_SETTING             = 3002
 
+    private lateinit var pAllowedFunc: (() -> Unit)
+    private lateinit var pDeniedFunc: ((checkedDoNotAskPermissions: Array<String>, permissions: Array<String>) -> Unit)
     private val list = ArrayList<String>()
     private var managerOverlayIntent: Intent? = null
 
-    fun execute(permissions: Array<String>, packageName: String? = null) {
+    fun check(permissions: Array<String>
+              , pAllowedFunc:() -> Unit
+              , pDeniedFunc:(checkedDoNotAskPermissions: Array<String>, permissions: Array<String>) -> Unit) {
+        this.pAllowedFunc = pAllowedFunc
+        this.pDeniedFunc = pDeniedFunc
         list.clear()
         managerOverlayIntent = null
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             for (item in permissions) {
                 if (item == Manifest.permission.SYSTEM_ALERT_WINDOW) {
                     if (Settings.canDrawOverlays(activity)) {
-                        inter.onGrantedSystemAlertWindow()
+                        // SYSTEM_ALERT_WINDOW 허용됨
                     } else  {
-                        if (packageName != null) {
-                            managerOverlayIntent =
-                                Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
-                            activity.startActivityForResult(managerOverlayIntent, OVERLAY_PERMISSION_REQ_CODE)
-                        }
+                        managerOverlayIntent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION
+                            , Uri.parse("package:${activity.applicationContext.packageName}"))
+                        activity.startActivityForResult(managerOverlayIntent, OVERLAY_PERMISSION_REQ_CODE)
+                        return
                     }
                 } else {
                     list.add(item)
                 }
             }
-
-            if (managerOverlayIntent == null) {
-                checkPermission(list.toTypedArray())
-            }
+            checkNormalPermission(list.toTypedArray())
         } else {
-            inter.onGrantedRequestPermission()
+            pAllowedFunc.invoke()
         }
     }
 
-    private fun checkPermission(permissions: Array<String>) {
-        val needPermissionsList = ArrayList<String>()
-        for (permission in permissions) { // 권한 체크
+    private fun checkNormalPermission(permissions: Array<String>) {
+        val needPermissionsList = ArrayList<String>() // 권한이 없는 Permission list
+        for (permission in permissions) {
             if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-                // 권한이 없을 경우
                 needPermissionsList.add(permission)
             }
         }
-        if (needPermissionsList.isNotEmpty()) {
-            // 접근권한 요청: $needPermissionsList
+        if (needPermissionsList.isNotEmpty()) { // 접근권한 요청: $needPermissionsList
             ActivityCompat.requestPermissions(activity, needPermissionsList.toTypedArray(), REQUEST_PERMISSIONS_CHECK)
         } else {
-            // 접근권한 이미 허용되어 있음
-            inter.onGrantedRequestPermission()
+           pAllowedFunc.invoke()
         }
     }
 
     fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (requestCode != REQUEST_PERMISSIONS_CHECK) return
 
-        val deniedPermissionsList = ArrayList<String>()
-        val rationaleDeniedPermissions = ArrayList<String>()
+        val deniedPermissionsList = ArrayList<String>()      // 완전 거부한 퍼미션 (Checked 'Don't ask')
+        val rationaleDeniedPermissions = ArrayList<String>() // 거부한 퍼미션 (일반)
         for (i in permissions.indices) {
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permissions[i])) {
@@ -90,41 +101,32 @@ class FMCheckPermission (
                 }
             }
         }
-        when {
-            rationaleDeniedPermissions.isNotEmpty() -> {
-                // 완전 거부한 퍼미션 있음(설정으로 이동해야 함)
-                inter.onRequestPermissionRationale(rationaleDeniedPermissions)
-            }
-            deniedPermissionsList.isNotEmpty() -> {
-                // 접근권한 요청 거부
-                inter.onDeniedRequestPermission(deniedPermissionsList)
-            }
-            else -> {
-                // 퍼미션 획득. 프로세스 진행
-                inter.onGrantedRequestPermission()
-            }
+        if (rationaleDeniedPermissions.isEmpty() && deniedPermissionsList.isEmpty()) {
+            pAllowedFunc.invoke()
+        } else {
+            pDeniedFunc.invoke(rationaleDeniedPermissions.toTypedArray(), deniedPermissionsList.toTypedArray())
         }
     }
 
-    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    fun onActivityResult(requestCode: Int) {
         if (requestCode == OVERLAY_PERMISSION_REQ_CODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(activity)) {
-                    inter.onGrantedSystemAlertWindow()
+                    checkNormalPermission(list.toTypedArray())
                 } else {
-                    inter.onDeniedSystemAlertWindow()
+                    list.add(Manifest.permission.SYSTEM_ALERT_WINDOW)
+                    pDeniedFunc.invoke(arrayOf(), list.toTypedArray())
                 }
-                checkPermission(list.toTypedArray())
             }
         } else if (requestCode == REQUEST_SETTING) {
-            checkPermission(list.toTypedArray())
+            checkNormalPermission(list.toTypedArray())
         }
     }
 
-    fun moveSetting(packageName: String) {
+    fun moveSetting() {
         try {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                    .setData(Uri.parse("package:$packageName"))
+                .setData(Uri.parse("package:${activity.applicationContext.packageName}"))
             activity.startActivityForResult(intent, REQUEST_SETTING)
         } catch (e: ActivityNotFoundException) {
             val intent = Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS)
@@ -134,30 +136,22 @@ class FMCheckPermission (
 
 }
 
-interface FMICheckPermission {
-    fun onRequestPermissionRationale(permissions: List<String>)
-    fun onDeniedRequestPermission(permissions: List<String>)
-    fun onGrantedRequestPermission()
-    fun onDeniedSystemAlertWindow()
-    fun onGrantedSystemAlertWindow()
-}
 
 
-abstract class FMCheckPermissionActivity: Activity(), FMICheckPermission {
+
+abstract class FMCheckPermissionActivity: Activity() {
     private lateinit var checker: FMCheckPermission
-    private fun checkLateInit() {
-        if (!this::checker.isInitialized) {
-            checker = FMCheckPermission(this, this)
-        }
-    }
-    fun checkPermission(permissions: Array<String>, packageName: String? = null) {
-        checkLateInit()
-        checker.execute(permissions, packageName)
+
+    protected fun checkPermission(permissions: Array<String>
+                        , pAllowedFunc:() -> Unit
+                        , pDeniedFunc:(checkedDoNotAskPermissions: Array<String>, permissions: Array<String>) -> Unit)
+    {
+        checker = FMCheckPermission.instance(this)
+        checker.check(permissions, pAllowedFunc, pDeniedFunc)
     }
 
-    fun moveSetting(packageName: String) {
-        checkLateInit()
-        checker.moveSetting(packageName)
+    protected fun movePermissionSetting() {
+        checker.moveSetting()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -165,25 +159,23 @@ abstract class FMCheckPermissionActivity: Activity(), FMICheckPermission {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        checker.onActivityResult(requestCode, resultCode, data)
+        checker.onActivityResult(requestCode)
     }
 }
 
-abstract class FMCheckPermissionAppCompatActivity: AppCompatActivity(), FMICheckPermission {
+abstract class FMCheckPermissionAppCompatActivity: AppCompatActivity() {
     private lateinit var checker: FMCheckPermission
-    private fun checkLateInit() {
-        if (!this::checker.isInitialized) {
-            checker = FMCheckPermission(this, this)
-        }
-    }
-    fun checkPermission(permissions: Array<String>, packageName: String? = null) {
-        checkLateInit()
-        checker.execute(permissions, packageName)
+
+    protected fun checkPermission(permissions: Array<String>
+                        , pAllowedFunc:() -> Unit
+                        , pDeniedFunc:(checkedDoNotAskPermissions: Array<String>, permissions: Array<String>) -> Unit)
+    {
+        checker = FMCheckPermission.instance(this)
+        checker.check(permissions, pAllowedFunc, pDeniedFunc)
     }
 
-    fun moveSetting(packageName: String) {
-        checkLateInit()
-        checker.moveSetting(packageName)
+    protected fun movePermissionSetting() {
+        checker.moveSetting()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -191,25 +183,23 @@ abstract class FMCheckPermissionAppCompatActivity: AppCompatActivity(), FMICheck
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        checker.onActivityResult(requestCode, resultCode, data)
+        checker.onActivityResult(requestCode)
     }
 }
 
-abstract class FMCheckPermissionAppFragmentActivity: FragmentActivity(), FMICheckPermission {
+abstract class FMCheckPermissionAppFragmentActivity: FragmentActivity() {
     private lateinit var checker: FMCheckPermission
-    private fun checkLateInit() {
-        if (!this::checker.isInitialized) {
-            checker = FMCheckPermission(this, this)
-        }
-    }
-    fun checkPermission(permissions: Array<String>, packageName: String? = null) {
-        checkLateInit()
-        checker.execute(permissions, packageName)
+
+    protected fun checkPermission(permissions: Array<String>
+                        , pAllowedFunc:() -> Unit
+                        , pDeniedFunc:(checkedDoNotAskPermissions: Array<String>, permissions: Array<String>) -> Unit)
+    {
+        checker = FMCheckPermission.instance(this)
+        checker.check(permissions, pAllowedFunc, pDeniedFunc)
     }
 
-    fun moveSetting(packageName: String) {
-        checkLateInit()
-        checker.moveSetting(packageName)
+    protected fun movePermissionSetting() {
+        checker.moveSetting()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -217,7 +207,7 @@ abstract class FMCheckPermissionAppFragmentActivity: FragmentActivity(), FMIChec
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        checker.onActivityResult(requestCode, resultCode, data)
+        checker.onActivityResult(requestCode)
     }
 }
 

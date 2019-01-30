@@ -24,85 +24,68 @@ allprojects {
 App build.gradle
 ```Groovy
 dependencies {
-    implementation 'com.github.freemmer:FMCheckPermission:1.2.1'
+    implementation 'com.github.freemmer:FMCheckPermission:1.2.2'
 }
 ```
 
 
 ## How to use
+1. Do inherit one of the classes below.
++ FMCheckPermissionActivity            : extends Activity
++ FMCheckPermissionAppCompatActivity   : extends AppCompatActivity
++ FMCheckPermissionAppFragmentActivity : extends FragmentActivity
 
+2. Use to the code below.
 ```Kotlin
-class MainActivity : FMCheckPermissionActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
-
-        btnCheckPermission.setOnClickListener {
-            checkPermission(arrayOf(
-                Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.READ_CONTACTS,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.SYSTEM_ALERT_WINDOW
-            ))
-        }
-
-        btnCheckPermissionSystemAlertWindow.setOnClickListener {
-            checkPermission(arrayOf(
-                Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.READ_CONTACTS,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.SYSTEM_ALERT_WINDOW
-            ), this.packageName)
-        }
-
-    }
-
-    override fun onRequestPermissionRationale(permissions: List<String>) {
-        Log.d(MainActivity::class.java.simpleName
-            , "Request Permission Rationale(In case. checked 'Don't ask again') : $permissions")
-        Snackbar
-            .make(btnCheckPermission, "Request Permission Rationale(In case. checked 'Don't ask again') : $permissions"
+checkPermission(
+    arrayOf(
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_CONTACTS,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.SYSTEM_ALERT_WINDOW)
+    , {
+        // All Permissions requested are allowed
+        Snackbar.make(btnCheckPermission
+            , "OK!!", Snackbar.LENGTH_SHORT).show()
+    }, {checkedDoNotAskPermissions, permissions ->
+        // Requested Permission denied
+        if (checkedDoNotAskPermissions.isNotEmpty()) {
+            Snackbar.make(btnCheckPermission
+                , "Requested Permissions denied with 'Don't ask again' : $checkedDoNotAskPermissions"
                 , Snackbar.LENGTH_LONG)
-            .setAction("move setting") { moveSetting(this.packageName) }
-            .show()
+            .setAction("move setting") { movePermissionSetting() }.show()
+        } else {
+            Snackbar.make(btnCheckPermission
+                , "Requested Permission denied : $permissions", Snackbar.LENGTH_SHORT).show()
+        }
+    })
+```
+
+## Another how to use
+```kotlin
+class MainActivity: Activity() {
+    private lateinit var checker: FMCheckPermission
+
+    private fun checkPermission(permissions: Array<String>
+                        , pAllowedFunc:() -> Unit
+                        , pDeniedFunc:(checkedDoNotAskPermissions: Array<String>, permissions: Array<String>) -> Unit)
+    {
+        checker = FMCheckPermission.instance(this)
+        checker.check(permissions, pAllowedFunc, pDeniedFunc)
     }
 
-    override fun onDeniedRequestPermission(permissions: List<String>) {
-        Log.d(MainActivity::class.java.simpleName, "Denied Request Permission : $permissions")
-        Snackbar
-            .make(btnCheckPermission, "Denied Request Permission : $permissions", Snackbar.LENGTH_SHORT)
-            .show()
+    private fun movePermissionSetting() {
+        checker.moveSetting()
     }
 
-    override fun onGrantedRequestPermission() {
-        Log.d(MainActivity::class.java.simpleName, "Granted Request Permission")
-        Snackbar
-            .make(btnCheckPermission, "Granted Request Permission", Snackbar.LENGTH_SHORT)
-            .show()
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        checker.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    override fun onDeniedSystemAlertWindow() {
-        Log.d(MainActivity::class.java.simpleName, "Denied SystemAlertWindow")
-        Snackbar
-            .make(btnCheckPermission, "Denied SystemAlertWindow", Snackbar.LENGTH_SHORT)
-            .show()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        checker.onActivityResult(requestCode)
     }
-
-    override fun onGrantedSystemAlertWindow() {
-        Log.d(MainActivity::class.java.simpleName, "Granted SystemAlertWindow")
-        Snackbar
-            .make(btnCheckPermission, "Granted SystemAlertWindow", Snackbar.LENGTH_SHORT)
-            .show()
-    }
-
 }
 ```
 ## Activity Type
@@ -156,4 +139,3 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 ```
-
