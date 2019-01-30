@@ -21,21 +21,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="16dp"
         android:orientation="vertical">
 
         <Button
             android:id="@+id/btnCheckPermission"
-            android:layout_width="250dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Check Permission\r\n-READ_PHONE_STATE\r\n-ACCESS_NETWORK_STATE\r\n-..."
-            android:textAlignment="textStart" />
+            android:text="Check Permissions"
+            android:textAlignment="center" />
 
-        <Button
-            android:id="@+id/btnCheckPermissionSystemAlertWindow"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
-            android:text="Check Permission\r\n-SYSTEM_ALERT_WINDOW"
-            android:textAlignment="textStart" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
