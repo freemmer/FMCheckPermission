@@ -142,7 +142,7 @@ class FMCheckPermission private constructor(
 abstract class FMCheckPermissionActivity: Activity() {
     private lateinit var checker: FMCheckPermission
 
-    fun checkPermission(permissions: Array<String>
+    protected fun checkPermission(permissions: Array<String>
                         , pAllowedFunc:() -> Unit
                         , pDeniedFunc:(checkedDoNotAskPermissions: Array<String>, permissions: Array<String>) -> Unit)
     {
@@ -150,7 +150,7 @@ abstract class FMCheckPermissionActivity: Activity() {
         checker.check(permissions, pAllowedFunc, pDeniedFunc)
     }
 
-    fun movePermissionSetting() {
+    protected fun movePermissionSetting() {
         checker.moveSetting()
     }
 
@@ -166,7 +166,7 @@ abstract class FMCheckPermissionActivity: Activity() {
 abstract class FMCheckPermissionAppCompatActivity: AppCompatActivity() {
     private lateinit var checker: FMCheckPermission
 
-    fun checkPermission(permissions: Array<String>
+    protected fun checkPermission(permissions: Array<String>
                         , pAllowedFunc:() -> Unit
                         , pDeniedFunc:(checkedDoNotAskPermissions: Array<String>, permissions: Array<String>) -> Unit)
     {
@@ -174,7 +174,7 @@ abstract class FMCheckPermissionAppCompatActivity: AppCompatActivity() {
         checker.check(permissions, pAllowedFunc, pDeniedFunc)
     }
 
-    fun movePermissionSetting() {
+    protected fun movePermissionSetting() {
         checker.moveSetting()
     }
 
@@ -190,7 +190,7 @@ abstract class FMCheckPermissionAppCompatActivity: AppCompatActivity() {
 abstract class FMCheckPermissionAppFragmentActivity: FragmentActivity() {
     private lateinit var checker: FMCheckPermission
 
-    fun checkPermission(permissions: Array<String>
+    protected fun checkPermission(permissions: Array<String>
                         , pAllowedFunc:() -> Unit
                         , pDeniedFunc:(checkedDoNotAskPermissions: Array<String>, permissions: Array<String>) -> Unit)
     {
@@ -198,7 +198,7 @@ abstract class FMCheckPermissionAppFragmentActivity: FragmentActivity() {
         checker.check(permissions, pAllowedFunc, pDeniedFunc)
     }
 
-    fun movePermissionSetting() {
+    protected fun movePermissionSetting() {
         checker.moveSetting()
     }
 
