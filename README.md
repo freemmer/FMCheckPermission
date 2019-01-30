@@ -87,41 +87,7 @@ class MainActivity: Activity() {
         checker.onActivityResult(requestCode)
     }
 }
-```
-## Activity Type
-+ FMCheckPermissionActivity            : extends Activity
-+ FMCheckPermissionAppCompatActivity   : extends AppCompatActivity
-+ FMCheckPermissionAppFragmentActivity : extends FragmentActivity
-
-## Another how to use
-FMICheckPermission is inherited and implemented as below.
-```kotlin
-abstract class FMCheckPermissionActivity: Activity(), FMICheckPermission {
-    private lateinit var checker: FMCheckPermission
-    private fun checkLateInit() {
-        if (!this::checker.isInitialized) {
-            checker = FMCheckPermission(this, this)
-        }
-    }
-    fun checkPermission(permissions: Array<String>, packageName: String?) {
-        checkLateInit()
-        checker.execute(permissions, packageName)
-    }
-
-    fun moveSetting(packageName: String) {
-        checkLateInit()
-        checker.moveSetting(packageName)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        checker.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        checker.onActivityResult(requestCode, resultCode, data)
-    }
-}
-```
+````
 
 ## License 
 ```code
