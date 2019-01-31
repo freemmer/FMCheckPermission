@@ -44,11 +44,12 @@ checkPermission(
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.SYSTEM_ALERT_WINDOW)
-    , {
+    , pAllowedFunc = {
         // All Permissions requested are allowed
         Snackbar.make(btnCheckPermission
             , "OK!!", Snackbar.LENGTH_SHORT).show()
-    }, {checkedDoNotAskPermissions, permissions ->
+    }
+    , pDeniedFunc = {checkedDoNotAskPermissions, permissions ->
         // Requested Permission denied
         if (checkedDoNotAskPermissions.isNotEmpty()) {
             Snackbar.make(btnCheckPermission
